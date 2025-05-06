@@ -1,5 +1,6 @@
 import { WebSocketServer } from 'ws';
 import { RealtimeClient } from '@openai/realtime-api-beta';
+import http from 'http';
 
 export class RealtimeRelay {
   constructor(apiKey) {
@@ -9,9 +10,13 @@ export class RealtimeRelay {
   }
 
   listen(port) {
-    this.wss = new WebSocketServer({ port, host: '0.0.0.0' });
+    const server = http.createServer(); // servidor HTTP básico
+    this.wss = new WebSocketServer({ server }); // WebSocket via HTTP server
     this.wss.on('connection', this.connectionHandler.bind(this));
-    this.log(`Listening on ws://0.0.0.0:${port}`);
+  
+    server.listen(port, '0.0.0.0', () => {
+      this.log(`Listening on ws://0.0.0.0:${port}`);
+    });
   }
   
 
